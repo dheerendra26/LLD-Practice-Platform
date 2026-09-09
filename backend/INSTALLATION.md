@@ -66,6 +66,10 @@ lld_practice_platform
 
 Update the database credentials in your `.env` file.
 
+## Note
+
+To seed your database, visit the '/problems' route and it will automatically run the seed files to add problems in probelms table.
+
 ## 🚀 Start Development Server
 
 ```bash

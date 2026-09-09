@@ -47,6 +47,10 @@ Installation instructions are available separately:
 * Frontend: [`frontend/installation.md`](./frontend/INSTALLATION.md)
 * Backend: [`backend/installation.md`](./backend/INSTALLATION.md)
 
+## Note
+
+To seed your database, visit the '/problems' route and it will automatically run the seed files to add problems in probelms table.
+
 ## 👨‍💻 Author
 
 **Dheerendra**
