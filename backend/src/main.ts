@@ -7,7 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', process.env.FRONTEND_URL],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   app.useGlobalPipes(
@@ -31,6 +34,8 @@ async function bootstrap() {
   const port = process.env.PORT || 3001;
 
   await app.listen(port);
+
+  console.log(`Server running on PORT ${port}`);
 }
 
 bootstrap();
