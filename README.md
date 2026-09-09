@@ -1,8 +1,12 @@
 # 🧠 LLD Practice Platform
 
+A modern full-stack **Low-Level Design practice platform** where users can solve real-world LLD problems, submit their designs, and receive **AI-powered evaluations and feedback**.
+
 ![LLD Practice Platform](./frontend/public/Hero-Page.png)
 
-A modern full-stack **Low-Level Design practice platform** where users can solve real-world LLD problems, submit their designs, and receive **AI-powered evaluations and feedback**.
+## 🚀 Live Demo
+
+[View Live Demo](https://lld-practice-platform-psi.vercel.app/)
 
 ## 🚀 Features
 
