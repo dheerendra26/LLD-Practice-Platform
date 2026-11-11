@@ -17,12 +17,12 @@ import { EvaluationsModule } from './evaluations/evaluations.module.js';
       inject: [ConfigService],
 
       useFactory: (configService: ConfigService) => {
-        const nodeEnv = configService.get<string>('NODE_ENV');
+        const databaseUrl = configService.get<string>('DATABASE_URL');
 
-        if (nodeEnv === 'deployment') {
+        if (databaseUrl) {
           return {
-            type: 'postgres',
-            url: configService.get<string>('DATABASE_URL'),
+            type: 'postgres' as const,
+            url: databaseUrl,
             autoLoadEntities: true,
             synchronize: false,
             ssl: {
@@ -32,7 +32,7 @@ import { EvaluationsModule } from './evaluations/evaluations.module.js';
         }
 
         return {
-          type: 'postgres',
+          type: 'postgres' as const,
           host: configService.get<string>('DB_HOST'),
           port: Number(configService.get<string>('DB_PORT')),
           username: configService.get<string>('DB_USERNAME'),
