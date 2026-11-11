@@ -35,7 +35,7 @@ export default function Navbar() {
 
           <div>
             <p className="text-sm font-bold text-slate-900 sm:text-base">
-              LLD Practice
+              Archie
             </p>
 
             <p className="hidden text-xs text-slate-500 sm:block">

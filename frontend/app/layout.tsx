@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "LLD Practice Platform",
+  title: "Archie",
   description: "Practice Low-Level Design with AI feedback",
 };
 

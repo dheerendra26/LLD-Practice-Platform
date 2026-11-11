@@ -21,8 +21,8 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('LLD Practice Platform API')
-    .setDescription('API for the LLD Practice Platform')
+    .setTitle('Archie API')
+    .setDescription('API for the Archie')
     .setVersion('1.0')
     .build();
 
