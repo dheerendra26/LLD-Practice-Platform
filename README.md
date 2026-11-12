@@ -4,10 +4,6 @@ A modern full-stack **Low-Level Design practice platform** where users can solve
 
 ![Archie](./frontend/public/Hero-Page.png)
 
-## 🚀 Live Demo
-
-[View Live Demo](https://archie-lld.vercel.app/)
-
 ## 🚀 Features
 
 * Browse Low-Level Design problems
