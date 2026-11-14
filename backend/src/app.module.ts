@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module.js';
 import { ProblemsModule } from './problems/problems.module.js';
 import { AttemptsModule } from './attempts/attempts.module.js';
 import { SubmissionsModule } from './submissions/submissions.module.js';
@@ -44,6 +45,7 @@ import { EvaluationsModule } from './evaluations/evaluations.module.js';
       },
     }),
 
+    AuthModule,
     ProblemsModule,
     AttemptsModule,
     SubmissionsModule,

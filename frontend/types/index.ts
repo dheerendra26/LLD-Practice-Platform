@@ -65,3 +65,17 @@ export interface Submission {
   designDecisions?: string;
   extensibility?: string;
 }
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: AuthUser;
+}

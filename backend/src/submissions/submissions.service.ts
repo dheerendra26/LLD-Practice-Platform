@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { AttemptsService } from '../attempts/attempts.service.js';
 import { SaveSubmissionDto } from './dto/save-submission.dto.js';
 import { Submission } from './entities/submission.entity.js';
@@ -14,8 +15,12 @@ export class SubmissionsService {
     private readonly attemptsService: AttemptsService,
   ) {}
 
-  async save(attemptId: string, saveSubmissionDto: SaveSubmissionDto) {
-    await this.attemptsService.findOne(attemptId);
+  async save(
+    attemptId: string,
+    userId: string,
+    saveSubmissionDto: SaveSubmissionDto,
+  ) {
+    await this.attemptsService.findOne(attemptId, userId);
 
     let submission = await this.submissionsRepository.findOneBy({
       attemptId,
@@ -35,8 +40,8 @@ export class SubmissionsService {
     return this.submissionsRepository.save(submission);
   }
 
-  async findByAttemptId(attemptId: string) {
-    await this.attemptsService.findOne(attemptId);
+  async findByAttemptId(attemptId: string, userId: string) {
+    await this.attemptsService.findOne(attemptId, userId);
 
     const submission = await this.submissionsRepository.findOneBy({
       attemptId,

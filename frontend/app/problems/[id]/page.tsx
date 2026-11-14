@@ -1,17 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
   CircleAlert,
   Loader2,
   Play,
-} from 'lucide-react';
-import api from '@/lib/api';
-import { Problem } from '@/types';
+} from "lucide-react";
+
+import api from "@/lib/api";
+import { Problem } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProblemDetailsPage() {
   const params = useParams();
@@ -19,10 +21,12 @@ export default function ProblemDetailsPage() {
 
   const problemId = params.id as string;
 
+  const { user, isLoading: authLoading } = useAuth();
+
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchProblem() {
@@ -30,13 +34,13 @@ export default function ProblemDetailsPage() {
         setLoading(true);
 
         const response = await api.get<Problem>(
-          `/problems/${problemId}`,
+          `/problems/${problemId}`
         );
 
         setProblem(response.data);
       } catch (error) {
         console.error(error);
-        setError('Failed to load problem');
+        setError("Failed to load problem");
       } finally {
         setLoading(false);
       }
@@ -50,18 +54,27 @@ export default function ProblemDetailsPage() {
   const handleStartAttempt = async () => {
     if (!problem) return;
 
+    if (authLoading) return;
+
+    if (!user) {
+      const redirect = encodeURIComponent(`/problems/${problemId}`);
+
+      router.push(`/login?redirect=${redirect}`);
+      return;
+    }
+
     try {
       setStarting(true);
-      setError('');
+      setError("");
 
-      const response = await api.post('/attempts', {
+      const response = await api.post("/attempts", {
         problemId: problem.id,
       });
 
       router.push(`/attempts/${response.data.id}`);
     } catch (error) {
       console.error(error);
-      setError('Failed to start attempt');
+      setError("Failed to start attempt. Please try again.");
       setStarting(false);
     }
   };
@@ -79,6 +92,7 @@ export default function ProblemDetailsPage() {
       <main className="flex min-h-screen items-center justify-center p-6">
         <div className="text-center">
           <CircleAlert className="mx-auto mb-4 h-10 w-10" />
+
           <h1 className="text-xl font-semibold">
             Problem not found
           </h1>
@@ -95,9 +109,9 @@ export default function ProblemDetailsPage() {
   }
 
   const difficultyStyles = {
-    EASY: 'bg-green-100 text-green-700',
-    MEDIUM: 'bg-yellow-100 text-yellow-700',
-    HARD: 'bg-red-100 text-red-700',
+    EASY: "bg-green-100 text-green-700",
+    MEDIUM: "bg-yellow-100 text-yellow-700",
+    HARD: "bg-red-100 text-red-700",
   };
 
   return (
@@ -116,9 +130,8 @@ export default function ProblemDetailsPage() {
             <div>
               <div className="mb-3 flex items-center gap-3">
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    difficultyStyles[problem.difficulty]
-                  }`}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${difficultyStyles[problem.difficulty]
+                    }`}
                 >
                   {problem.difficulty}
                 </span>
@@ -131,16 +144,22 @@ export default function ProblemDetailsPage() {
 
             <button
               onClick={handleStartAttempt}
-              disabled={starting}
+              disabled={starting || authLoading}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {starting ? (
+              {starting || authLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <Play className="h-5 w-5" />
               )}
 
-              {starting ? 'Starting...' : 'Start Attempt'}
+              {starting
+                ? "Starting..."
+                : authLoading
+                  ? "Checking..."
+                  : user
+                    ? "Start Attempt"
+                    : "Login to Start"}
             </button>
           </div>
 

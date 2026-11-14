@@ -17,31 +17,53 @@ import {
 
 import api from "@/lib/api";
 import { Attempt, Problem } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
+    if (authLoading) return;
+
+    let cancelled = false;
+
     const fetchDashboardData = async () => {
       try {
-        const [problemsResponse, attemptsResponse] = await Promise.all([
-          api.get<Problem[]>("/problems"),
-          api.get<Attempt[]>("/attempts"),
-        ]);
+        setLoading(true);
 
-        setProblems(problemsResponse.data);
-        setAttempts(attemptsResponse.data);
+        const problemsResponse = await api.get<Problem[]>("/problems");
+
+        if (!cancelled) {
+          setProblems(problemsResponse.data);
+        }
+
+        if (user) {
+          const attemptsResponse = await api.get<Attempt[]>("/attempts");
+
+          if (!cancelled) {
+            setAttempts(attemptsResponse.data);
+          }
+        } else {
+          setAttempts([]);
+        }
       } catch (error) {
         console.error("Failed to load dashboard:", error);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchDashboardData();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading]);
 
   const completedAttempts = useMemo(
     () => attempts.filter((attempt) => attempt.status === "COMPLETED"),

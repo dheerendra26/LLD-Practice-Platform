@@ -65,7 +65,27 @@ DROP TABLE IF EXISTS "evaluations" CASCADE;
 DROP TABLE IF EXISTS "submissions" CASCADE;
 DROP TABLE IF EXISTS "attempts" CASCADE;
 DROP TABLE IF EXISTS "problems" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
 
+-- =========================================================
+-- USERS
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS "users" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    "name" VARCHAR(100) NOT NULL,
+
+    "email" VARCHAR(255) NOT NULL,
+
+    "passwordHash" VARCHAR(255) NOT NULL,
+
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UQ_users_email" UNIQUE ("email")
+);
 
 -- =========================================================
 -- PROBLEMS
@@ -99,6 +119,8 @@ CREATE TABLE "attempts" (
 
     "problemId" UUID NOT NULL,
 
+    "userId" UUID,
+
     "status" attempt_status NOT NULL DEFAULT 'DRAFT',
 
     "startedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -110,9 +132,13 @@ CREATE TABLE "attempts" (
     CONSTRAINT "FK_attempts_problem"
         FOREIGN KEY ("problemId")
         REFERENCES "problems"("id")
+        ON DELETE CASCADE,
+
+    CONSTRAINT "FK_attempts_user"
+        FOREIGN KEY ("userId")
+        REFERENCES "users"("id")
         ON DELETE CASCADE
 );
-
 
 -- =========================================================
 -- SUBMISSIONS
@@ -219,6 +245,8 @@ CREATE INDEX "IDX_feedback_items_evaluationId"
 CREATE INDEX "IDX_problems_difficulty"
     ON "problems" ("difficulty");
 
+CREATE INDEX "IDX_attempts_userId"
+    ON "attempts" ("userId");
 
 -- =========================================================
 -- VERIFY
@@ -230,6 +258,7 @@ SELECT
     data_type
 FROM information_schema.columns
 WHERE table_name IN (
+    'users',
     'problems',
     'attempts',
     'submissions',

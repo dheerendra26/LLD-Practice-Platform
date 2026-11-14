@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { Attempt, AttemptStatus } from '../attempts/entities/attempt.entity.js';
 import { AttemptsService } from '../attempts/attempts.service.js';
 import { FeedbackItem } from './entities/feedback-item.entity.js';
@@ -24,15 +25,15 @@ export class EvaluationsService {
     private readonly geminiEvaluationStrategy: GeminiEvaluationStrategy,
   ) {}
 
-  async createEvaluation(attemptId: string) {
-    const attempt = await this.attemptsService.findOne(attemptId);
+  async createEvaluation(attemptId: string, userId: string) {
+    const attempt = await this.attemptsService.findOne(attemptId, userId);
 
     const existingEvaluation = await this.evaluationsRepository.findOneBy({
       attemptId,
     });
 
     if (existingEvaluation) {
-      return this.processEvaluation(existingEvaluation, attempt);
+      return this.processEvaluation(existingEvaluation, attempt, userId);
     }
 
     attempt.status = AttemptStatus.SUBMITTED;
@@ -47,10 +48,14 @@ export class EvaluationsService {
 
     const savedEvaluation = await this.evaluationsRepository.save(evaluation);
 
-    return this.processEvaluation(savedEvaluation, attempt);
+    return this.processEvaluation(savedEvaluation, attempt, userId);
   }
 
-  private async processEvaluation(evaluation: Evaluation, attempt: Attempt) {
+  private async processEvaluation(
+    evaluation: Evaluation,
+    attempt: Attempt,
+    userId: string,
+  ) {
     try {
       evaluation.status = EvaluationStatus.EVALUATING;
 
@@ -75,7 +80,6 @@ export class EvaluationsService {
       }
 
       const submission = attemptWithSubmission.submission;
-
       const problem = attemptWithSubmission.problem;
 
       const result = await this.geminiEvaluationStrategy.evaluate(
@@ -114,7 +118,7 @@ export class EvaluationsService {
 
       await this.attemptsRepository.save(attempt);
 
-      return this.findByAttemptId(attempt.id);
+      return this.findByAttemptId(attempt.id, userId);
     } catch (error) {
       evaluation.status = EvaluationStatus.FAILED;
 
@@ -131,9 +135,13 @@ export class EvaluationsService {
     }
   }
 
-  async findByAttemptId(attemptId: string) {
+  async findByAttemptId(attemptId: string, userId: string) {
+    await this.attemptsService.findOne(attemptId, userId);
+
     const evaluation = await this.evaluationsRepository.findOne({
-      where: { attemptId },
+      where: {
+        attemptId,
+      },
       relations: {
         attempt: true,
       },
@@ -157,15 +165,15 @@ export class EvaluationsService {
     };
   }
 
-  async retryEvaluation(attemptId: string) {
-    const attempt = await this.attemptsService.findOne(attemptId);
+  async retryEvaluation(attemptId: string, userId: string) {
+    const attempt = await this.attemptsService.findOne(attemptId, userId);
 
     const evaluation = await this.evaluationsRepository.findOneBy({
       attemptId,
     });
 
     if (!evaluation) {
-      return this.createEvaluation(attemptId);
+      return this.createEvaluation(attemptId, userId);
     }
 
     evaluation.status = EvaluationStatus.PENDING;
@@ -173,6 +181,6 @@ export class EvaluationsService {
 
     await this.evaluationsRepository.save(evaluation);
 
-    return this.processEvaluation(evaluation, attempt);
+    return this.processEvaluation(evaluation, attempt, userId);
   }
 }

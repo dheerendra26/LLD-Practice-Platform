@@ -24,10 +24,10 @@ async function bootstrap() {
     .setTitle('Archie API')
     .setDescription('API for the Archie')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, config);
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, documentFactory);
 

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { ProblemsService } from '../problems/problems.service.js';
 import { CreateAttemptDto } from './dto/create-attempt.dto.js';
 import { Attempt, AttemptStatus } from './entities/attempt.entity.js';
@@ -14,7 +15,7 @@ export class AttemptsService {
     private readonly problemsService: ProblemsService,
   ) {}
 
-  async create(createAttemptDto: CreateAttemptDto) {
+  async create(createAttemptDto: CreateAttemptDto, userId: string) {
     const problem = await this.problemsService.findOne(
       createAttemptDto.problemId,
     );
@@ -26,14 +27,18 @@ export class AttemptsService {
     const attempt = this.attemptsRepository.create({
       problem,
       problemId: problem.id,
+      userId,
       status: AttemptStatus.DRAFT,
     });
 
     return this.attemptsRepository.save(attempt);
   }
 
-  async findAll() {
+  async findAll(userId: string) {
     return this.attemptsRepository.find({
+      where: {
+        userId,
+      },
       relations: {
         evaluation: true,
       },
@@ -43,9 +48,12 @@ export class AttemptsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
     const attempt = await this.attemptsRepository.findOne({
-      where: { id },
+      where: {
+        id,
+        userId,
+      },
       relations: {
         submission: true,
         evaluation: true,
@@ -63,8 +71,8 @@ export class AttemptsService {
     return this.attemptsRepository.save(attempt);
   }
 
-  async remove(id: string) {
-    const attempt = await this.findOne(id);
+  async remove(id: string, userId: string) {
+    const attempt = await this.findOne(id, userId);
 
     await this.attemptsRepository.remove(attempt);
 

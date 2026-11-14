@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +10,7 @@ import {
 } from 'typeorm';
 
 import { Problem } from '../../problems/entities/problem.entity.js';
+import { User } from '../../auth/entities/user.entity.js';
 import type { Submission } from '../../submissions/entities/submission.entity.js';
 import type { Evaluation } from '../../evaluations/entities/evaluation.entity.js';
 
@@ -33,6 +35,16 @@ export class Attempt {
 
   @Column()
   problemId: string;
+
+  @ManyToOne(() => User, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' })
+  user: User | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  userId: string | null;
 
   @Column({
     type: 'enum',
