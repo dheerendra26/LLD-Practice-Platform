@@ -42,29 +42,41 @@ export default function ProblemsPage() {
   const filteredProblems = useMemo(() => {
     const searchValue = search.trim().toLowerCase();
 
-    return problems.filter((problem) => {
-      const matchesDifficulty =
-        selectedDifficulty === "ALL" ||
-        problem.difficulty === selectedDifficulty;
+    const difficultyOrder: Record<string, number> = {
+      EASY: 1,
+      MEDIUM: 2,
+      HARD: 3,
+    };
 
-      const matchesSearch =
-        !searchValue ||
-        problem.title.toLowerCase().includes(searchValue) ||
-        problem.description.toLowerCase().includes(searchValue);
+    return [...problems]
+      .filter((problem) => {
+        const matchesDifficulty =
+          selectedDifficulty === "ALL" ||
+          problem.difficulty === selectedDifficulty;
 
-      return matchesDifficulty && matchesSearch;
-    });
+        const matchesSearch =
+          !searchValue ||
+          problem.title.toLowerCase().includes(searchValue) ||
+          problem.description.toLowerCase().includes(searchValue);
+
+        return matchesDifficulty && matchesSearch;
+      })
+      .sort(
+        (a, b) =>
+          difficultyOrder[a.difficulty] -
+          difficultyOrder[b.difficulty]
+      );
   }, [problems, search, selectedDifficulty]);
 
   const filters: {
     label: string;
     value: DifficultyFilter;
   }[] = [
-    { label: "All", value: "ALL" },
-    { label: "Easy", value: "EASY" },
-    { label: "Medium", value: "MEDIUM" },
-    { label: "Hard", value: "HARD" },
-  ];
+      { label: "All", value: "ALL" },
+      { label: "Easy", value: "EASY" },
+      { label: "Medium", value: "MEDIUM" },
+      { label: "Hard", value: "HARD" },
+    ];
 
   const difficultyStyles: Record<string, string> = {
     EASY: "bg-green-100 text-green-700",
@@ -123,11 +135,10 @@ export default function ProblemsPage() {
             <button
               key={filter.value}
               onClick={() => setSelectedDifficulty(filter.value)}
-              className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                selectedDifficulty === filter.value
+              className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition ${selectedDifficulty === filter.value
                   ? "bg-slate-900 text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
-              }`}
+                }`}
             >
               {filter.label}
             </button>
@@ -169,9 +180,8 @@ export default function ProblemsPage() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      difficultyStyles[problem.difficulty]
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${difficultyStyles[problem.difficulty]
+                      }`}
                   >
                     {problem.difficulty}
                   </span>
